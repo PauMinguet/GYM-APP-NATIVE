@@ -50,7 +50,7 @@ const StackLayout = () => {
               />
               <Stack.Screen
                 name="login"
-                options={{ title: "Login Modal", presentation: "modal" }}
+                options={{ title: "Login", presentation: "modal" }}
               />
               <Stack.Screen
                 name="recipes/[id]"
