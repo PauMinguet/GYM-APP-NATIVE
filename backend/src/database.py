@@ -10,4 +10,4 @@ def database_connection_url():
 
 
 
-engine = create_engine(database_connection_url(), pool_pre_ping=True)
+engine = create_engine("postgresql://postgres:gym-app-native@db.cakcjbjqkmhabjtjnoar.supabase.co:5432/postgres", pool_pre_ping=True)
