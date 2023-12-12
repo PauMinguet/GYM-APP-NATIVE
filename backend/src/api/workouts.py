@@ -1,3 +1,4 @@
+import math
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 #from src.api import auth
@@ -12,98 +13,109 @@ router = APIRouter(
     #dependencies=[Depends(auth.get_api_key)],
 )
 
-class Workout(BaseModel):
-    name: str
-    description: str
-    author_id: int
-    difficulty: int
-    duration: int
-    objective_id: int
-    num_days: int
 
-class Exercise(BaseModel):
-    name: str
-    equipment_id: int
-    muscle_group: str
-
-class WorkoutStep(BaseModel):
-    workout_id: int
-    exercise_id: int
-    sets: int
-    reps: int
-    percent_max_weight: int
-    rest_secs: int
-    
-
-@router.post("/create")
-def create_workout(new_workout: Workout):
+@router.get("/split/{split_id}")
+def get_split(split_id):
     try:
+        split = {}
+
         with db.engine.begin() as connection:
-            id = connection.execute(sqlalchemy.text(
-                """INSERT INTO workouts (name, description, author_id, difficulty, duration, objective_id, num_days) 
-                                                    VALUES (:name, :description, :author_id, :difficulty, :duration, :objective_id, :num_days) RETURNING id"""), {
-                                                        'name': new_workout.name,
-                                                        'description': new_workout.description,
-                                                        'difficulty': new_workout.difficulty,
-                                                        'author_id': new_workout.author_id,
-                                                        'duration': new_workout.duration,
-                                                        'objective_id': new_workout.objective_id,
-                                                        'num_days': new_workout.num_days
-                                                    }).scalar_one()
-    
-        return {'new_workout_id': id}
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
+            s = connection.execute(sqlalchemy.text("""
+                                                       SELECT s.id, s.created_at, s.name, s.description, i.username, s.difficulty, o.name, floor(s.avg_duration/60)
+                                                       from splits s 
+                                                       join influencers i on i.id = s.author_id
+                                                       join objectives o on o.id = s.objective_id
+                                                       where s.id = :id
+                                                       """), {'id': split_id}).fetchone()
+            split['id'] = s[0]
+            split['created_at'] = s[1]
+            split['name'] = s[2]
+            split['description'] = s[3]
+            split['author'] = s[4]
+            split['difficulty'] = s[5]
+            split['objective'] = s[6]
+            split['avg_duration'] = s[7]
+            split['workouts'] = []
 
+            w = connection.execute(sqlalchemy.text("""
+                                                       SELECT id, name, day_of_week, duration
+                                                       from workouts
+                                                       where split_id = :id
+                                                       """), {'id': s[0]}).fetchall()
+            print(w)
+            for i in w:
+                workout = {}
+                workout['name'] = i[1]
+                workout['day_of_week'] = i[2]
+                workout['duration'] = i[3]
+                e = connection.execute(sqlalchemy.text("""
+                                                       SELECT e.name, w.max, w.sets, w.reps, w.percent_max_weight, w.rest_secs
+                                                       from workout_steps w
+                                                       join exercises e on e.id = w.exercise_id
+                                                       where w.workout_id = :id
+                                                       """), {'id': i[0]}).fetchall()
+                for i in range(len(e)):
+                    e[i] = list(e[i])
+                workout['steps'] = e
+                split['workouts'].append(workout)
 
-
-
-@router.post("/create-exercise")
-def create_exercise(new_exercise: Exercise):
-    try:
-        with db.engine.begin() as connection:
-            id = connection.execute(sqlalchemy.text("""INSERT INTO exercises (name, equipment_id, muscle_group) 
-                                                    VALUES (:name, :equipment_id, :muscle_group) RETURNING id"""), {
-                                                        'name': new_exercise.name,
-                                                        'equipment_id': new_exercise.equipment_id,
-                                                        'muscle_group': new_exercise.muscle_group,
-                                                    }).scalar_one()
-    
-        return {'new_exercise_id': id}
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
-
-
-@router.post("/create-step")
-def create_step(new_step: WorkoutStep):
-    try:
-        with db.engine.begin() as connection:
-            id = connection.execute(sqlalchemy.text("""INSERT INTO workout_steps (workout_id, exercise_id, sets, reps, percent_max_weight, rest_secs) 
-                                                    VALUES (:workout_id, :exercise_id, :sets, :reps, :percent_max_weight, :rest_secs) RETURNING id"""), {
-                                                        'workout_id': new_step.workout_id,
-                                                        'exercise_id': new_step.exercise_id,
-                                                        'sets': new_step.sets,
-                                                        'reps': new_step.reps,
-                                                        'percent_max_weight': new_step.percent_max_weight,
-                                                        'rest_secs': new_step.rest_secs,
-                                                    }).scalar_one()
-
-        return {'new_step_id': id}
-    except DBAPIError as error:
-        print(f"Error returned: <<<{error}>>>")
-
-
-
-
-
-@router.get("/{workout_id}")
-def create_workout(workout_id):
-    try:
-        with db.engine.begin() as connection:
-            workout = connection.execute(sqlalchemy.text("SELECT * from workouts where id = :id"), {'id': workout_id}).fetchone()
+            print(workout)
+                
         
-        return list(workout)
+        
+        
+
+        
+        return split
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
 
+
+@router.get("/update-times/{split_id}")
+def update_times(split_id):
+
+    time_for_set = 30
+    time_between_exercises = 120
+
+    try:
+        with db.engine.begin() as connection:
+            workout_times = connection.execute(sqlalchemy.text("""  select w.id, sum(ws.sets * :time_for_set + (ws.sets-1) * ws.rest_secs), count(*)
+                                                            from splits s 
+                                                            join workouts w on w.split_id = s.id
+                                                            join workout_steps ws on ws.workout_id = w.id
+                                                            where s.id = :split_id
+                                                            group by w.id
+                                                        """), {'time_for_set': time_for_set,
+                                                                'split_id': split_id
+                                                                }).fetchall()
+            
+            print(workout_times)
+
+            for i in workout_times:
+                id, duration = i[0], i[1] + time_between_exercises * (i[2]-1)
+                connection.execute(sqlalchemy.text("""  update workouts
+                                                        set duration = :duration
+                                                        where id = :id
+                                                        """), {'duration': duration,
+                                                                'id': id
+                                                                })
+            
+            connection.execute(sqlalchemy.text("""  UPDATE splits
+                                                    SET avg_duration = (
+                                                        SELECT a.dur
+                                                        FROM (
+                                                            SELECT AVG(w.duration) AS dur
+                                                            FROM splits s 
+                                                            JOIN workouts w ON w.split_id = s.id
+                                                            WHERE s.id = :split_id
+                                                        ) a
+                                                    )
+                                                    WHERE splits.id = :split_id
+                                                        """), {'split_id': split_id
+                                                                })
+            
+
+        return "Ok"
+    except DBAPIError as error:
+        print(f"Error returned: <<<{error}>>>")
 

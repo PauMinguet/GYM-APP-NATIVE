@@ -7,8 +7,8 @@ from operator import itemgetter
 from sqlalchemy.exc import DBAPIError
 
 router = APIRouter(
-    prefix="/weights",
-    tags=["weights"],
+    prefix="/log",
+    tags=["log"],
     #dependencies=[Depends(auth.get_api_key)],
 )
 
@@ -18,11 +18,11 @@ class Weight(BaseModel):
     weight: float
     reps: int
 
-@router.post("/create")
-def create_workout(new_weight: Weight):
+@router.post("/exercise")
+def log_exercise(new_weight: Weight):
     try:
         with db.engine.begin() as connection:
-            id = connection.execute(sqlalchemy.text("""INSERT INTO weights (user_id, exercise_id, weight, reps, onerm) 
+            id = connection.execute(sqlalchemy.text("""INSERT INTO logs (user_id, exercise_id, weight, reps, onerm) 
                                                     VALUES (:user_id, :exercise_id, :weight, :reps, :onerm) RETURNING id"""), {
                                                         'user_id': new_weight.user_id,
                                                         'exercise_id': new_weight.exercise_id,

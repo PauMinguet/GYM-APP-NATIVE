@@ -21,7 +21,6 @@ class OneRepMax(BaseModel):
 def create_user(OneRepMax: OneRepMax):
     try:
         result = round(OneRepMax.weight*(1+(OneRepMax.reps/30)),2)
-        print(result)
         return {'One Rep Max': result}
     except DBAPIError as error:
         print(f"Error returned: <<<{error}>>>")
