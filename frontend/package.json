@@ -12,6 +12,7 @@
     "lintfix": "npx eslint . --fix"
   },
   "dependencies": {
+    "@clerk/clerk-expo": "^0.19.24",
     "@expo/webpack-config": "^19.0.0",
     "@react-navigation/bottom-tabs": "^6.5.11",
     "@react-navigation/native-stack": "^6.9.16",
