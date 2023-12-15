@@ -14,10 +14,12 @@ import VerifyCodeScreen from "../screens/VerifyCodeScreen";
 import MyProfileScreen from "../screens/MyProfileScreen";
 import { RootStackParamList } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
-import { ClerkLoaded, useUser } from "@clerk/clerk-expo";
+import { ClerkLoaded, useAuth, useUser } from "@clerk/clerk-expo";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import MyFeed from "../screens/MyFeed";
+import { TouchableOpacity } from "react-native";
+import { log } from "../logger";
 
 export default function Navigation() {
   return (
@@ -38,6 +40,20 @@ const Tab = createBottomTabNavigator();
 
 const RootNavigator = () => {
   const { isSignedIn } = useUser();
+  const { getToken, signOut } = useAuth();
+
+  const onSignOutPress = async () => {
+    try {
+      await signOut();
+    } catch (err: any) {
+      log("Error:> " + err?.status || "");
+      log("Error:> " + err?.errors ? JSON.stringify(err.errors) : err);
+    }
+  };
+
+  const reloadFeed = async () => {
+    
+  };
 
   return (
     <ClerkLoaded>
@@ -54,11 +70,17 @@ const RootNavigator = () => {
             options={{
               tabBarLabel: "Feed",
               tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons
-                  name="home"
-                  color={color}
-                  size={size}
-                />
+                <MaterialCommunityIcons name="home" color={color} size={size} />
+              ),
+              headerRight: () => (
+                <TouchableOpacity onPress={reloadFeed}>
+                  <MaterialCommunityIcons
+                    name="refresh"
+                    color="black"
+                    size={30}
+                    style={{ marginRight: 15 }}
+                  />
+                </TouchableOpacity>
               ),
             }}
           />
@@ -73,6 +95,16 @@ const RootNavigator = () => {
                   color={color}
                   size={size}
                 />
+              ),
+              headerRight: () => (
+                <TouchableOpacity onPress={onSignOutPress}>
+                  <MaterialCommunityIcons
+                    name="exit-to-app"
+                    color="black"
+                    size={30}
+                    style={{ marginRight: 15 }}
+                  />
+                </TouchableOpacity>
               ),
             }}
           />

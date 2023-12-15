@@ -56,14 +56,6 @@ function MyFeedScreen({ navigation }: RootStackScreenProps<"MyFeed">) {
       });
   }, []);
 
-  const onSignOutPress = async () => {
-    try {
-      await signOut();
-    } catch (err: any) {
-      log("Error:> " + err?.status || "");
-      log("Error:> " + err?.errors ? JSON.stringify(err.errors) : err);
-    }
-  };
 
   React.useEffect(() => {
     const scheduler = setInterval(async () => {

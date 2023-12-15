@@ -1,9 +1,10 @@
 import * as React from "react";
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, StatusBar } from "react-native";
 import { SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-expo";
 import { log } from "../logger";
 import { RootStackScreenProps } from "../types";
 import {  } from "tamagui";
+import Dropdown from "../components/Dropdown";
 
 export default function SafeMyProfileScreen(
   props: RootStackScreenProps<"MyProfile">
@@ -28,6 +29,9 @@ function MyProfileScreen({ navigation }: RootStackScreenProps<"MyProfile">) {
 
   const [sessionToken, setSessionToken] = React.useState("");
   const [workouts, setWorkouts] = React.useState([]);
+
+
+
 
   const getLikedSplits = async (userId: number) => {
     try {
@@ -56,14 +60,7 @@ function MyProfileScreen({ navigation }: RootStackScreenProps<"MyProfile">) {
       });
   }, []);
 
-  const onSignOutPress = async () => {
-    try {
-      await signOut();
-    } catch (err: any) {
-      log("Error:> " + err?.status || "");
-      log("Error:> " + err?.errors ? JSON.stringify(err.errors) : err);
-    }
-  };
+  
 
   React.useEffect(() => {
     const scheduler = setInterval(async () => {
@@ -74,42 +71,90 @@ function MyProfileScreen({ navigation }: RootStackScreenProps<"MyProfile">) {
   }, []);
 
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+    <View style={styles.container}>
+      <Text style={styles.title}>Hello {user?.firstName}</Text>
+
       <View style={styles.container}>
-        <Text style={styles.title}>Hello {user?.firstName}</Text>
-        <TouchableOpacity onPress={onSignOutPress} style={styles.link}>
-          <Text style={styles.linkText}>Sign out</Text>
-        </TouchableOpacity>
-        <Text>My workouts: </Text>
-        <Text>{JSON.stringify(workouts, null, 2)}</Text>
-        <Text style={styles.token}>{sessionToken}</Text>
+      <Dropdown label={'Select Item'} />
+      <Text>This is the rest of the form.</Text>
+      <StatusBar style="auto" />
+    </View>
+      <Text style={styles.sectionTitle}>Fetched data:</Text>
+      <View style={styles.dropdownContainer}>
+        <View style={styles.dropdown}>
+          {/* Display fetched data as a string */}
+          <Text style={styles.dropdownText}>{JSON.stringify(workouts, null, 2)}</Text>
+        </View>
       </View>
-    </ScrollView>
+      <Text style={styles.token}>{sessionToken}</Text>
+    </View>
+  </ScrollView>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  link: {
-    marginTop: 15,
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2e78b7',
+    height: 50,
+    width: '90%',
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  buttonText: {
+    flex: 1,
+    textAlign: 'center',
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  dropdownContainer: {
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  dropdown: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    width: '90%',
+    paddingHorizontal: 20,
     paddingVertical: 15,
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  linkText: {
+  dropdownText: {
     fontSize: 14,
-    color: "#2e78b7",
   },
   token: {
-    marginTop: 15,
-    paddingVertical: 15,
-    fontSize: 15,
+    marginTop: 20,
+    fontSize: 16,
+    color: '#555555',
   },
 });
