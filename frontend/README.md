@@ -1,66 +1,83 @@
-# Open Recipes Frontend
+<p align="center">
+  <a href="https://clerk.dev?utm_source=github&utm_medium=clerk_expo" target="_blank">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./docs/clerk-logo-dark.png">
+      <img src="./docs/clerk-logo-light.png" height="64">
+    </picture>
+  </a>
+  <br />
+</p>
 
-Welcome to the frontend! When designing the frontend for Open Recipes, we focused on creating something that is intuitive and appealing, unlike those recipe websites that bog you down with ads and are often frustrating to navigate. To view our frontend in action, please follow the quick start instructions below.
+# Clerk Expo Starter
 
-## Quick start instructions
+> If you want to use the new file-system based router that was introduced with [Expo Router V2](https://blog.expo.dev/introducing-expo-router-v2-3850fd5c3ca1), you can check out [this branch](https://github.com/clerkinc/clerk-expo-starter/tree/router-v2)
 
-### For Mac users with Xcode
+This starter project shows how to use [Clerk](https://www.clerk.dev/?utm_source=github&utm_medium=starter_repos&utm_campaign=expo_starter) with [Expo](https://expo.dev/) to authenticate users in your [React Native](https://reactnative.dev/) application. When users sign up or sign in, Clerk handles the state of the authentication and switches between public or [protected routes](https://reactnavigation.org/docs/auth-flow).
 
-1. Inside of the `frontend` directory run `npm install`
-2. Run `npm run ios`
-3. Install the Expo Go app and make an account (https://expo.dev/client)
-4. Scan the QR code in your terminal with your Iphone camera
-5. Finished! you should now be able to see the app live update on your emulator and phone
+[![chat on Discord](https://img.shields.io/discord/856971667393609759.svg?logo=discord)](https://discord.com/invite/b5rXHjAg7A)
+[![documentation](https://img.shields.io/badge/documentation-clerk-green.svg)](https://docs.clerk.dev)
+[![twitter](https://img.shields.io/twitter/follow/ClerkDev?style=social)](https://twitter.com/intent/follow?screen_name=ClerkDev)
 
-### For non-Mac users or users without Xcode
+---
 
-1. Inside of the `frontend` directory run `npm install`
-2. Run `npm start`
-3. Install the Expo Go app and make an account (https://expo.dev/client)
-4. Scan the QR code in your terminal with your Iphone camera (your phone and computer must be on the same wifi network for this to work, you must have your network configured for devices to be able to see the other devices on the network. School wifi will not work for this.)
-5. Finished! you should now be able to see the app live update on your phone (you need Xcode which is only available on mac for the emulator to work)
+**Clerk is Hiring!**
 
-## Documentation reference
+Would you like to work on Open Source software and help maintain this repository? [Apply today!](https://apply.workable.com/clerk-dev/)
 
-Tamagui (component library): https://tamagui.dev/docs/components/button/1.28.0
+---
 
-Expo (framework for managing react-native development): https://docs.expo.dev/
+## Demo
 
-React Native: https://reactnative.dev/docs/getting-started
+### Sign up using One-time passcodes (OTP) & Sign in using OAuth
 
-## Contributing
+<div float="left">
+  <img src="./docs/sign-up-otp-demo.gif" height="300">
+  <img src="./docs/sign-in-oauth-demo.gif" height="300">
+</div>
 
-Thank you for considering contributing to our project! We follow certain coding standards and guidelines to maintain code consistency and quality. Please follow our guidelines when making contributions.
+## Getting Started
 
-**Contributors:**
-Alfred Madere,
-Abigayle Mercer,
-Pau Minguet,
-Michael Murray,
-Kassi Winter
+### Prerequisites
 
-### Coding Standards
+- React v16+
+- Node.js v14+
 
-We use Prettier and ESLint to maintain code formatting and ensure code quality.
-To set up your development environment, follow these steps:
+### Setup
 
-1. **Prettier**: Install Prettier in your code editor and set it as your default formatter to automatically format your code according to our style rules.
+To run the example locally you need to:
 
-Our style guide follows standard Prettier formatting guidelines. See https://prettier.io/docs/en/why-prettier for more information
+1. Sign up at [Clerk.dev](https://www.clerk.dev/?utm_source=github&utm_medium=starter_repos&utm_campaign=expo_starter).
+2. Go to your [Clerk dashboard](https://dashboard.clerk.dev/?utm_source=github&utm_medium=starter_repos&utm_campaign=expo_starter) and create an application.
+3. Set your publishableKey in `App.tsx` or if you are using a legacy key frontendApi
+4. `npm i` to install the required dependencies.
+5. `npm run start` to launch the Expo development server.
 
-2. **ESLint**: Install ESLint in your code editor to catch and fix code errors and enforce our coding standards. Make sure you npm install because ESLint will have been added to your node modules.
+### Sign up & Sign in configuration
 
-NOTE about CI: You must run `npm run check` without errors before merging to main to pass CI tests run on github.
+For the sign up flow to work as demonstrated, you need to log into your [Clerk Dashboard](https://dashboard.clerk.dev/?utm_source=github&utm_medium=starter_repos&utm_campaign=expo_starter) and make sure the following settings have been configured in **User & Authentication** and **Social login** sections:
 
-NOTE about CD: our backend is continuously deployed on render with every push. We were given permission not to deploy our front end as its very hard and costly to become a registered developer on the app store. Our backend takes a few minuites to wake up as the free tier of render spins down after a period of activity. Here's the link: https://open-recipes.onrender.com/docs
+#### For development instances
 
-3. **Component-Testing**
-   see the following repository for the testing of the Login page component of this repo:
-   https://github.com/Abigayle-Mercer/CSC307-ComponentTesting
-   into the terminal type:
-   > > npm run coverage
+1. In Contact information section enable **Email Address** and pick **Email verification code** method in the modal.
+2. In Authentication factors section enable **Password** and **Email verification code**.
+3. In Personal information, enable **Name** to use first and last names during sign up
+4. In Social Login, enable **Google** Oauth provider.
 
-We adhere to the following ESLint standards for our code:
-"eslint:recommended",
-"plugin:react/recommended",
-"plugin:@typescript-eslint/recommended"
+#### For production instances
+
+1. Follow all the steps above
+2. Whitelist your custom redirect URL via [Clerk Dashboard](https://dashboard.clerk.dev/last-active?path=/user-authentication/social-login) for maximum security during native OAuth flows.
+   ![This is an image](./docs/whitelist-redirect-urls-for-mobile-oauth.png)
+
+## Learn more
+
+To learn more about Clerk and Expo, take a look at our
+[official documentation](https://reference.clerk.dev/reference/clerk-expo?utm_source=github&utm_medium=starter_repos&utm_campaign=expo_starter).
+
+## Support
+
+You can get in touch with us in any of the following ways:
+
+- Join our official community [Discord server](https://discord.com/invite/b5rXHjAg7A)
+- Open a [GitHub support issue](https://github.com/clerkinc/javascript/issues/new?assignees=&labels=question&template=ask_a_question.md&title=Support%3A+)
+- Contact options listed on [our Support page](https://clerk.dev/support?utm_source=github&utm_medium=clerk_expo_starter)
